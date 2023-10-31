@@ -1,5 +1,6 @@
-package org.glebchanskiy.dao;
+package org.glebchanskiy.dao.impl;
 
+import org.glebchanskiy.dao.CrudDAO;
 import org.glebchanskiy.mapper.EquipsMapper;
 import org.glebchanskiy.mapper.RaceMapper;
 import org.glebchanskiy.model.Equip;
@@ -8,7 +9,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.util.List;
 
-public class EquipmentDAO {
+public class EquipmentDAO implements CrudDAO<Equip> {
     private final JdbcTemplate jdbcTemplate;
 
     public EquipmentDAO(JdbcTemplate jdbcTemplate) {
@@ -16,8 +17,21 @@ public class EquipmentDAO {
     }
 
     public void insert(Equip race) {
+        System.out.println("EGOR");
         this.jdbcTemplate.update(
                 "INSERT INTO equipment (name, description) VALUES (?,?)", race.getName(), race.getDescription());
+    }
+
+    public void update(Equip equip) {
+        System.out.println("EGOR");
+        this.jdbcTemplate.update(
+                "UPDATE equipment SET description = ?, name = ?  WHERE id = ?", equip.getDescription(), equip.getName(), equip.getId());
+    }
+
+
+    public void deleteById(int id) {
+        this.jdbcTemplate.update(
+                "DELETE FROM equipment WHERE id = ?", id);
     }
 
     public void deleteByName(String name) {
@@ -31,9 +45,13 @@ public class EquipmentDAO {
     }
 
     public Equip findById(int id) {
-        return this.jdbcTemplate.queryForObject("SELECT * FROM equipment WHERE id = ?", Equip.class, id);
+        return this.jdbcTemplate.queryForObject("SELECT * FROM equipment WHERE id = ?", new EquipsMapper(), id);
     }
 
+    @Override
+    public Equip findByName(String name) {
+        return this.jdbcTemplate.queryForObject("SELECT * FROM equipment WHERE name = ?", new EquipsMapper(), name);
+    }
 
 
     public List<Equip> findAll() {

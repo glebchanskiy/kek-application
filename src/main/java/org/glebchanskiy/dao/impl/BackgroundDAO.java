@@ -1,25 +1,38 @@
-package org.glebchanskiy.dao;
+package org.glebchanskiy.dao.impl;
 
+import org.glebchanskiy.dao.CrudDAO;
 import org.glebchanskiy.mapper.BackgroundMapper;
 import org.glebchanskiy.mapper.EquipsMapper;
 import org.glebchanskiy.mapper.RaceMapper;
 import org.glebchanskiy.model.Background;
+import org.glebchanskiy.model.Class;
 import org.glebchanskiy.model.Equip;
 import org.glebchanskiy.model.Race;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.util.List;
 
-public class BackgroundDAO {
+public class BackgroundDAO implements CrudDAO<Background> {
     private final JdbcTemplate jdbcTemplate;
 
     public BackgroundDAO(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public void insert(Background race) {
+    public void insert(Background background) {
         this.jdbcTemplate.update(
-                "INSERT INTO background (name, description) VALUES (?,?)", race.getName(), race.getDescription());
+                "INSERT INTO background (name, description) VALUES (?,?)", background.getName(), background.getDescription());
+    }
+
+    public void update(Background background) {
+        this.jdbcTemplate.update(
+                "UPDATE background SET description = ?, name = ?  WHERE id = ?", background.getDescription(), background.getName(), background.getId());
+    }
+
+
+    public void deleteById(int id) {
+        this.jdbcTemplate.update(
+                "DELETE FROM background WHERE id = ?", id);
     }
 
     public void deleteByName(String name) {
@@ -33,7 +46,7 @@ public class BackgroundDAO {
     }
 
     public Background findById(int id) {
-        return this.jdbcTemplate.queryForObject("SELECT * FROM background WHERE id = ?", Background.class, id);
+        return this.jdbcTemplate.queryForObject("SELECT * FROM background WHERE id = ?", new BackgroundMapper(), id);
     }
 
     public Background findByName(String name) {

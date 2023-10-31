@@ -1,5 +1,6 @@
-package org.glebchanskiy.dao;
+package org.glebchanskiy.dao.impl;
 
+import org.glebchanskiy.dao.CrudDAO;
 import org.glebchanskiy.mapper.CharClassMapper;
 import org.glebchanskiy.mapper.RaceMapper;
 import org.glebchanskiy.model.Class;
@@ -8,7 +9,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.util.List;
 
-public class RaceDAO {
+public class RaceDAO implements CrudDAO<Race> {
     private final JdbcTemplate jdbcTemplate;
 
     public RaceDAO(JdbcTemplate jdbcTemplate) {
@@ -30,8 +31,13 @@ public class RaceDAO {
                 "UPDATE race SET description = ?  WHERE name = ?", description, name);
     }
 
+    public void update(Race race) {
+        this.jdbcTemplate.update(
+                "UPDATE race SET description = ?, name = ?  WHERE id = ?", race.getDescription(), race.getName(), race.getId());
+    }
+
     public Race findById(int id) {
-        return this.jdbcTemplate.queryForObject("SELECT * FROM race WHERE id = ?", Race.class, id);
+        return this.jdbcTemplate.queryForObject("SELECT * FROM race WHERE id = ?", new RaceMapper(), id);
     }
 
     public Race findByName(String name) {
@@ -39,9 +45,13 @@ public class RaceDAO {
     }
 
 
-
     public List<Race> findAll() {
         return this.jdbcTemplate.query(
                 "SELECT * FROM race", new RaceMapper());
+    }
+
+    public void deleteById(int id) {
+        this.jdbcTemplate.update(
+                "DELETE FROM race WHERE id = ?", id);
     }
 }

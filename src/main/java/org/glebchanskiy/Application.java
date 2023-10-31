@@ -1,14 +1,15 @@
 package org.glebchanskiy;
 
 import org.glebchanskiy.controller.*;
-import org.glebchanskiy.dao.*;
+import org.glebchanskiy.dao.impl.*;
 import org.glebchanskiy.kek.Configuration;
 import org.glebchanskiy.kek.ConnectionsManager;
 import org.glebchanskiy.kek.Server;
 import org.glebchanskiy.kek.router.Router;
-import org.glebchanskiy.kek.router.controllers.impl.ShareFilesController;
 import org.glebchanskiy.kek.router.filters.CorsFilter;
 import org.glebchanskiy.kek.utils.Mapper;
+import org.glebchanskiy.model.*;
+import org.glebchanskiy.model.Class;
 import org.glebchanskiy.util.DataSourceBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,7 +33,7 @@ public class Application {
                 .build();
 
         var jdbcTemplate = new JdbcTemplate(dataSource);
-
+//
         var charDAO = new CharDAO(jdbcTemplate);
         var raceDAO = new RaceDAO(jdbcTemplate);
         var charClassDAO = new CharClassDAO(jdbcTemplate);
@@ -42,13 +43,21 @@ public class Application {
 
         var router = new Router();
 
-        router.addController(new ShareFilesController("/assets", config));
-        router.addController(new ClassController("/class", charClassDAO));
-        router.addController(new RaceController("/race", raceDAO));
-        router.addController(new EquipmentController("/equip", equipDAO));
-        router.addController(new BackgroundController("/back", backgroundDAO));
-        router.addController(new CharController("/char", charDAO, raceDAO, charClassDAO, backgroundDAO));
-        router.addController(new HomeController("/home"));
+//
+        var raceController = new CrudController<>("/api/races*", raceDAO, Race.class);
+        var equipController =  new CrudController<>("/api/equips*", equipDAO, Equip.class);
+        var classController =  new CrudController<>("/api/classes*", charClassDAO, Class.class);
+        var backController =  new CrudController<>("/api/backs*", backgroundDAO, Background.class);
+        var charController =  new CrudController<>("/api/chars*", charDAO, Char.class);
+        router.addController(raceController);
+        router.addController(equipController);
+        router.addController(classController);
+        router.addController(backController);
+        router.addController(charController);
+
+//            router.addController(new RaceController("/kek*", raceDAO));
+//        router.addController(new AppController("/"));
+//        router.addController(new ShareFilesController("/assets/*", config));
 
 
         var server = Server.builder()
